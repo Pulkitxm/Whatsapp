@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+
+body{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e0e4dc;
+    width: 100vw;
+    height: 100vh;
+}
+
+.container{
+    width: 90vw;
+    height: 95vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-radius: .4em;
+}
+
+.green{
+    background-color: #08a494;
+    height: 5em;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    z-index: -1;
+}
