@@ -1,0 +1,7 @@
+.chatBox{
+    border-top: solid 2px black;
+    border-bottom: solid 2px black;
+    margin: 1em 0;
+    cursor: pointer;
+    user-select: none;
+}

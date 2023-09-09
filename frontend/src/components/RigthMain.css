@@ -1,3 +1,104 @@
 .rigthMain{
     grid-column: 4/11;
+    display: grid;
+    grid-template-rows: repeat(10,1fr);
+    grid-template-columns: repeat(1,1fr);
+    overflow: hidden;
+}
+
+.rigthMain .top{
+    background-color: #d8d8d8;
+    grid-row: 1/2;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1em;
+    user-select: none;
+}
+
+.rigthMain .top h2{
+    cursor: text;
+}
+
+.rigthMain .conversation{
+    background: url('../assets/wa-doodle.jpg') center/cover no-repeat, rgba(0, 0, 0, 0.5);
+    grid-row: 2/10;
+    color: #fff;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    padding: 2em;
+    overflow-y: scroll;
+}
+
+.message{
+    background-color: #fff;
+     padding: 1em;
+     margin: 1em;
+     color: #000;
+     border-radius: 1em;
+ }
+
+.message p{
+    opacity: .7;
+    margin: 0;
+    font-size: 1em;
+    user-select: none;
+    cursor: pointer;
+}   
+
+.message p:nth-of-type(1){
+    opacity: 1;
+    margin: 0;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: .5em;
+    cursor: text;
+    user-select: text;
+ }
+
+.rigthMain .textArea{
+    grid-row: 10/11;
+    background-color: #d8d8d8;
+    display: grid;
+    padding: 0 1em;
+    font-size: 1.5em;
+    grid-template-rows: repeat(1,1fr);
+    grid-template-columns: repeat(20,1fr);
+}
+
+.rigthMain .textArea input[type='text']{
+    font-size: 1em;
+    background-color: #d8d8d8;
+    outline: none;
+    border: none;
+    grid-column: 1/20 ;
+}
+
+.rigthMain .textArea input[type='text']:focus{
+    color: #000;
+}
+
+.rigthMain .textArea .material-symbols-outlined{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.default{
+    grid-column: 4/11;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.default img{
+    width: 20em;
+}
+
+
+.rigthMain .top span.material-symbols-outlined{
+    cursor: pointer;
 }

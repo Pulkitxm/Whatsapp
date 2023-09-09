@@ -1,5 +1,10 @@
 .leftSidebar{
     grid-column: 1/4;
+    display: grid;
+    grid-template-columns: repeat(1,1fr);
+    grid-template-rows: repeat(20,1fr);
+    overflow-y: scroll;
+    padding: 1em;
 }
 
 .leftSidebar .top{
@@ -10,6 +15,7 @@
     align-items: center;
     user-select: none;
     padding: 0 1em;
+    grid-row: 1/2;
 }
 
 .leftSidebar .top svg{
@@ -17,7 +23,7 @@
     height: 35px;
     grid-column: 1/3;
     cursor: pointer;
-    grid-row: 2/3;
+    grid-row: 1/2;
 }
 
 .leftSidebar .top  span,
@@ -91,6 +97,10 @@
   .menu a:hover {
     background-color: #f0f0f0;
   }
+
+  .chats{
+    grid-row: 2/10;
+  }
   
   /* Animation */
   @keyframes fadeIn {
@@ -99,5 +109,11 @@
     }
     to {
       opacity: 1;
+    }
+  }
+
+  @media (width<=600px) {
+    .leftSidebar{
+      grid-column: 1/11;
     }
   }

@@ -1,3 +1,15 @@
+.changeinup{
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    user-select: none;
+    font-size: 1.5em;
+}
+
+input:focus{
+    color: #08a494;
+}
+
 .login{
     width: 100%;
     height: 100%;
@@ -17,16 +29,19 @@
 .login form h1 {
     color: #08a494;
     font-weight: 900;
-    font-size: 3em;
+    font-size: 4em;
 }
 
 .login form div label {
+    font-size: 1.5em;
     font-weight: 700;
     font-size: 1.5em;
     margin: 0;
 }
 
 .login form div input {
+    padding-bottom: .3em;
+    font-size: 1.5em;
     border: none;
     outline: none;
     margin-bottom: 1.5em;
@@ -36,12 +51,14 @@
 .login form button{
     width: 10em;
     height: 2em;
+    padding: .5em 0;
     background-color: #08a494;
     color: #fff;
     border: none;
     cursor: pointer;
     transition: .2s;
     border-radius: 1em;
+    font-size: 1.5em;
 }
 
 .login form button:active{
@@ -51,6 +68,94 @@
 
 .login form button:hover{
     animation: glitch .5s 1;
+}
+
+.changeinup{
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    user-select: none;
+    font-size: 1.5em;
+}
+
+.signup{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.signup form {
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.signup form h1 {
+    color: #08a494;
+    font-weight: 900;
+    font-size: 4em;
+}
+
+.signup form div label {
+    font-size: 1.5em;
+    font-weight: 700;
+    font-size: 1.5em;
+    margin: 0;
+}
+
+.signup form div input {
+    padding-bottom: .3em;
+    font-size: 1.5em;
+    border: none;
+    outline: none;
+    margin-bottom: 1.5em;
+    border-bottom: solid 2px #08a494;
+}
+
+.signup form button{
+    width: 10em;
+    height: 2em;
+    padding: .5em 0;
+    background-color: #08a494;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: .2s;
+    border-radius: 1em;
+    font-size: 1.5em;
+}
+
+.signup form button:active{
+    transition: .2s;
+    box-shadow: 1px 1px 10px #08a494;
+}
+
+.signup form button:hover{
+    animation: glitch .5s 1;
+}
+
+button[type='submit']{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #000000;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 @keyframes glitch {
