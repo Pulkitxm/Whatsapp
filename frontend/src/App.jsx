@@ -13,15 +13,15 @@ const App = () => {
   // const [url, setUrl] = useState('') 
   const [user, setUser] = useState(null)
   const [token, setToken] = useState('')  
-  const [username, setUsername] = useState("pulkit");
   const [loading, setLoading] = useState(false);
-  const [password, setPassword] = useState("pulkit123");
   const [messages, setMessages] = useState([]);
   const [currUser, setCurrUser] = useState(null)
   const [page, setpage] = useState("login");
-  const [name, setName] = useState("Pulkit");
-  const [repassword, setRePassword] = useState("pulkit123");
 
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [repassword, setRePassword] = useState("");
   const handleLogin = async (event) => {
     event.preventDefault();
     if (username && password) {

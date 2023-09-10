@@ -2,10 +2,7 @@ import { useState } from "react";
 import "./login.css";
 
 const LoginForm = ({ handleLogin,handleSignUp,username,setUsername,password,setPassword,loading,page,setpage,name,setName,repassword,setRePassword }) => {
-  // const [name, setName] = useState("");
-  // const [username, setUsername] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [repassword, setRePassword] = useState("");
+
 
   return page === "signup" ? (
     <div className="signup">
