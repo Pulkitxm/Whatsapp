@@ -38,6 +38,14 @@
      border-radius: 1em;
  }
 
+ .rigth{
+    justify-self: flex-end;
+ }
+
+ .left{
+    justify-self: flex-start;
+ }
+
 .message p{
     opacity: .7;
     margin: 0;
@@ -67,19 +75,41 @@
     grid-template-columns: repeat(20,1fr);
 }
 
+.rigthMain .textArea span:nth-of-type(1){
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    grid-row: 1/2;
+}
+
+.rotate{
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    0%{
+        transform: rotate(0deg);
+    }
+    100%{
+        transform: rotate(360deg);
+    }
+}
+
 .rigthMain .textArea input[type='text']{
     font-size: 1em;
     background-color: #d8d8d8;
     outline: none;
     border: none;
-    grid-column: 1/20 ;
+    grid-column: 2/20 ;
 }
 
 .rigthMain .textArea input[type='text']:focus{
     color: #000;
 }
 
-.rigthMain .textArea .material-symbols-outlined{
+.rigthMain .textArea :nth-of-type(2){
     display: flex;
     justify-content: center;
     align-items: center;
@@ -101,4 +131,32 @@
 
 .rigthMain .top span.material-symbols-outlined{
     cursor: pointer;
+}
+
+.new input[type='text']{
+    height: 2em;
+    font-size: 1.3em;
+    width: 90%;
+    margin: 1em 0;
+    border: none;
+    outline: none;
+    border-bottom: solid 5px #08a494;
+}
+
+.new button{
+    height: 2em;
+    font-size: 1.1em;
+    width: 90%;
+    margin: 1em 0;
+    border: none;
+    outline: none;
+    background-color:#08a494;
+    color: #fff;
+    transition: .3s;
+    cursor: pointer;
+    border-radius: 1em;
+}
+
+.new button:active{
+    transform: scale(1.1);
 }

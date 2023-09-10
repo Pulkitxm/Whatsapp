@@ -1,135 +1,165 @@
 import React, { useState, useEffect, useRef } from 'react';
 import svg_wa from '../assets/svg-wa.png';
 import './RigthMain.css';
+import chatService from '../services/chat';
+import loginService from '../services/login';
 
-const RighMain = ({ currUser, setCurrUser }) => {
-  const [messages, setMessages] = useState([])
-  const [textMessage, setMessage] = useState('');
+const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,password,logout,setToken,setUser,setpage }) => {
+  const [textMessage, setTextMessage] = useState('');
   const conversationRef = useRef();
 
-  document.addEventListener('keydown', function (event) {
-    const searchInput = document.querySelector(".textArea input");
-    var keyPressed = event.key.toLowerCase();
-
-    if (
-        keyPressed >= 'a' &&
-        keyPressed <= 'z' &&
-        keyPressed <= '9' ||
-        keyPressed >= '0' &&
-        keyPressed[0] != 'f' &&
-        !event.ctrlKey &&
-        keyPressed != 'enter' &&
-        keyPressed != 'escape' &&
-        !event.shiftKey &&
-        !event.altKey &&
-        event.keyCode !== 9 &&
-        !searchInput.matches(':focus')
-    ) {
-        event.preventDefault(); // Prevent typing the letter in the document
-        searchInput.value += keyPressed
-        searchInput.focus(); // Focus on the search input
-    } else if (event.key === '/') {
-        event.preventDefault(); // Prevent typing the "/" character in the input
-        searchInput.focus(); // Focus on the search input
-    } else if (event.key === 'Escape') {
-        searchInput.blur(); // Remove focus from the search input
+  const handleLogin = async () => {
+    if (username && password) {
+      try {
+        const xyz = await loginService.getUsers();
+        if (xyz.some((user) => user.username === username) == true) {
+          const user = await loginService.login({
+            username,
+            password,
+          });
+          let chats;
+          await chatService.fetchAll().then(res=>{
+            chats=res;
+          });
+          let  msgs = [];
+          user.chats=chats?chats.filter(i=>{
+            if (i.senderId==user.id || i.receiverId==user.id){
+              msgs.push(i);
+              return true;
+            };
+          })
+          :[];
+          setMessages(msgs);
+          window.localStorage.setItem(
+            "WhatsappUser",
+            JSON.stringify(user)
+          );
+          setToken(`Bearer ${user.token}`);
+          setUser(user);
+        } else {
+          if ( window.confirm("User do not exists , would you like to sign up ?")){
+            setpage('signup');
+          }
+        }
+      } catch (exception) {
+        console.log(exception);
+      }
     }
-});
-  
+  };
+
+  const handleRefresh = async (e) => {
+    e.target.classList.add("rotate");
+    window.localStorage.setItem("CurrWhatsappUser", JSON.stringify(currUser));
+    logout();
+    await handleLogin();
+    window.location.reload();
+    e.target.classList.remove("rotate");
+  }
+
+  // Function to get the current date and time
   function getCurrentDateTime() {
     const now = new Date();
-
-    let hours = now.getHours();
-    let minutes = now.getMinutes();
-    let seconds = now.getSeconds();
-
-    const amOrPm = hours >= 12 ? 'PM' : 'AM';
-
-    hours = hours % 12 || 12;
-
-    minutes = String(minutes).padStart(2, '0');
-    seconds = String(seconds).padStart(2, '0');
-
-    const formattedTime = `${hours}:${minutes} ${amOrPm}`;
-
+    const hours = now.getHours() % 12 || 12;
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const amOrPm = now.getHours() >= 12 ? 'PM' : 'AM';
     const month = now.toLocaleString('en-US', { month: 'short' });
     const day = now.getDate();
     const year = String(now.getFullYear()).substring(2, 4);
 
-    const formattedDate = `${day}/${year}`;
-
     return {
-      date: formattedDate,
-      time: formattedTime,
+      date: `${day}/${year}`,
+      time: `${hours}:${minutes} ${amOrPm}`,
     };
   }
 
-  useEffect(()=>{
-    setMessages(JSON.parse(localStorage.getItem('WhatsappUser')).chats);
-  },[])
+  // Load messages from local storage on component mount
+  useEffect(() => {
+    const storedMessages = JSON.parse(localStorage.getItem('WhatsappUser'));
+    if (storedMessages && storedMessages.chats) {
+      setMessages(storedMessages.chats);
+    }
+  }, []);
 
+  // Scroll to the bottom of the conversation when messages change
   useEffect(() => {
     if (conversationRef.current) {
       conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
     }
-    console.log(messages);
   }, [messages, currUser]);
-  
-  const sendMessage = () => {
+
+  // Send a new message
+  const sendMessage = async () => {
     if (textMessage.trim() !== '') {
       const dateTimeObj = getCurrentDateTime();
-      setMessage('');
-      setMessage('')
-      let updatedMessages = messages.map((msg) => {
-        if (msg.id === currUser.id) {
-          return {
-            ...msg,
-            chats: msg.chats.concat({
+      let updatedMessages = [...messages];
+      const userIndex = updatedMessages.findIndex((msg) => msg.receiverId === currUser.id);
+      if (userIndex !== -1) {
+        // The chat already exists, so update it
+        updatedMessages[userIndex].chats.push({
+          text: textMessage,
+          time: dateTimeObj.time,
+          date: dateTimeObj.date,
+          senderId: user.id,
+          receiverId: currUser.id,
+        });
+
+        const updatedChat = {
+          id: updatedMessages[userIndex].id,
+          senderId: user.id,
+          receiverId: currUser.id,
+          chats: updatedMessages[userIndex].chats,
+        };
+        setMessages([...updatedMessages]);
+        await chatService.update(updatedChat.id, updatedChat);
+      } else {
+        // The chat does not exist, so create a new chat
+        const newChat = {
+          senderId: user.id,
+          receiverId: currUser.id,
+          chats: [
+            {
               text: textMessage,
               time: dateTimeObj.time,
               date: dateTimeObj.date,
-            }),
-          };
-        }
-        return msg;
-      });
+              senderId: user.id,
+              receiverId: currUser.id,
+            },
+          ],
+        };
 
-      if (updatedMessages.length === 0) {
-        updatedMessages = [
-          {
-            id: currUser.id,
-            chats: [
-              {
-                text: textMessage,
-                time: dateTimeObj.time,
-                date: dateTimeObj.date,
-              },
-            ],
-          },
-        ];
+        // Create the new chat on the server
+        const createdChat = await chatService.upload(newChat);
+
+        // Update the chatId for the new chat
+        newChat.id = createdChat.id;
+        
+        // Update the state with the new chat
+        setMessages([...updatedMessages, newChat]);
       }
 
-      setMessages(updatedMessages);
-      let localStorage = JSON.parse(window.localStorage.getItem("WhatsappUser"));
+      // Update the local storage
+      const localStorageData = JSON.parse(window.localStorage.getItem('WhatsappUser')) || {};
+      localStorageData.chats = updatedMessages;
+      window.localStorage.setItem('WhatsappUser', JSON.stringify(localStorageData));
 
-      localStorage.chats=[...updatedMessages];
-      window.localStorage.setItem("WhatsappUser",JSON.stringify(localStorage))
-      console.log(localStorage);
+      // Clear the text input
+      setTextMessage('');
     }
   };
+
 
   return (
     <div className={currUser === null ? 'default' : 'rigthMain'}>
       {currUser === null ? (
-        <div className='default'>
-          <img src={svg_wa} alt='' />
+        <div className="default">
+          <img src={svg_wa} alt="" draggable="false" />
         </div>
       ) : (
         <>
-          <div className='top'>
+          <div className="top">
             <h2>{currUser.name}</h2>
             <span
-              className='material-symbols-outlined'
+              className="material-symbols-outlined"
               onClick={() => {
                 setCurrUser(null);
               }}
@@ -137,39 +167,53 @@ const RighMain = ({ currUser, setCurrUser }) => {
               close
             </span>
           </div>
-          <div className='conversation'>
-              { ( JSON.stringify(messages) != JSON.stringify([]) ) ? (
-                messages.find((msg) => msg.id === currUser.id).chats.map((msg, index) => {
-                  return (
-                    <div className='message' key={index}>
-                      <p>{msg.text}</p>
-                      <p>
-                        {msg.date}, {msg.time}
-                      </p>
-                    </div>
-                  );
-                })
-              ) : (
-                <></>
-              )}
-            </div>
+          <div className="conversation" ref={conversationRef}>
+            {messages.length > 0 &&
+              messages.find((msg) => msg.receiverId === currUser.id) ?
+              messages.find((msg) => msg.receiverId === currUser.id).chats.map((msg, index) => 
+                  {
+                    return(
+                      msg.senderId===user.id?
+                        <div className="message right" style={{alignSelf:"flex-end",backgroundColor:"#045c84",color:"#fff"}} key={index}>
+                        <p>{msg.text}</p>
+                        <p>
+                          {msg.date} , {msg.time}
+                          </p>
+                        </div>
+                    
+                      :
+                        <div className="message left"  style={{alignSelf:"flex-start",backgroundColor:"#282c34",color:"#fff"}} key={index}>
+                        <p>{msg.text}</p>
+                        <p>
+                          {msg.date} , {msg.time}
+                          </p>
+                        </div>
+                    )
+                  }
+                )
+                :<></>
+            }
+          </div>
 
-          <div className='textArea'>
+          <div className="textArea">
+            <span className="material-symbols-outlined" onClick={(e)=>handleRefresh(e)}>
+              refresh
+            </span>
             <input
-              type='text'
+              type="text"
               value={textMessage}
-              placeholder='Type a message'
-              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type a message"
+              onChange={(e) => setTextMessage(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   sendMessage();
-                } else if (e.key=== 'Escape'){
-                  e.target.blur()
+                } else if (e.key === 'Escape') {
+                  e.target.blur();
                 }
               }}
             ></input>
             <span
-              className='material-symbols-outlined'
+              className="material-symbols-outlined"
               onClick={() => sendMessage()}
             >
               send
