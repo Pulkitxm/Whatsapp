@@ -19,11 +19,11 @@ const LeftSidebar = ({ logout, Users = [], setUsers,currUser,setCurrUser,message
     if (Users.length === 0) {
       fetchUsers();
     }
-  }, [Users, setUsers]);
+  }, [Users, setUsers,messages]);
 
   const startConvo = () =>{
-    if(query=="") return
-    const user = Users.find((user)=>user.username==query)
+    if(query==="") return
+    const user = Users.find((user)=>user.username===query)
     if(user){
       setCotent("chats")
       setCurrUser(user)

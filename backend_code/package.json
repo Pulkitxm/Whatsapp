@@ -23,6 +23,7 @@
     "mongoose": "^7.4.0",
     "mongoose-unique-validator": "^4.0.0",
     "react-scripts": "^5.0.1",
+    "socket.io": "^4.7.4",
     "vue-json-pretty": "^2.2.4"
   },
   "devDependencies": {

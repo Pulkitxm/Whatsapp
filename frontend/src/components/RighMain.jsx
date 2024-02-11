@@ -3,11 +3,11 @@ import svg_wa from '../assets/svg-wa.png';
 import './RigthMain.css';
 import chatService from '../services/chat';
 import loginService from '../services/login';
+import { io } from 'socket.io-client';
 
 const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,password,logout,setToken,setUser,setpage }) => {
   const [textMessage, setTextMessage] = useState('');
   const conversationRef = useRef();
-
   const handleLogin = async () => {
     if (username && password) {
       try {
@@ -47,15 +47,6 @@ const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,pa
     }
   };
 
-  const handleRefresh = async (e) => {
-    e.target.classList.add("rotate");
-    window.localStorage.setItem("CurrWhatsappUser", JSON.stringify(currUser));
-    logout();
-    await handleLogin();
-    window.location.reload();
-    e.target.classList.remove("rotate");
-  }
-
   // Function to get the current date and time
   function getCurrentDateTime() {
     const now = new Date();
@@ -92,7 +83,12 @@ const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,pa
     if (textMessage.trim() !== '') {
       const dateTimeObj = getCurrentDateTime();
       let updatedMessages = [...messages];
-      const userIndex = updatedMessages.findIndex((msg) => msg.receiverId === currUser.id);
+      updatedMessages.map((msg) => {
+        return (msg.receiverId === currUser.id && msg.senderId === user.id)
+      });
+      const userIndex = updatedMessages.findIndex((msg) => 
+      (msg.receiverId === currUser.id || msg.senderId === currUser.id)&& (msg.receiverId === user.id || msg.senderId === user.id)
+      );
       if (userIndex !== -1) {
         // The chat already exists, so update it
         updatedMessages[userIndex].chats.push({
@@ -102,7 +98,6 @@ const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,pa
           senderId: user.id,
           receiverId: currUser.id,
         });
-
         const updatedChat = {
           id: updatedMessages[userIndex].id,
           senderId: user.id,
@@ -110,7 +105,7 @@ const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,pa
           chats: updatedMessages[userIndex].chats,
         };
         setMessages([...updatedMessages]);
-        await chatService.update(updatedChat.id, updatedChat);
+        await chatService.update(updatedChat.id, updatedChat,user.id,currUser.id,textMessage);
       } else {
         // The chat does not exist, so create a new chat
         const newChat = {
@@ -128,7 +123,7 @@ const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,pa
         };
 
         // Create the new chat on the server
-        const createdChat = await chatService.upload(newChat);
+        const createdChat = await chatService.upload(newChat,user.id,currUser.id,textMessage);
 
         // Update the chatId for the new chat
         newChat.id = createdChat.id;
@@ -169,11 +164,12 @@ const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,pa
           </div>
           <div className="conversation" ref={conversationRef}>
             {messages.length > 0 &&
-              messages.find((msg) => msg.receiverId === currUser.id) ?
-              messages.find((msg) => msg.receiverId === currUser.id).chats.map((msg, index) => 
+              messages.filter((msg) => (msg.receiverId === currUser.id)||(msg.senderId===currUser.id)) ?
+              messages.filter((msg) => (msg.receiverId === currUser.id)||(msg.senderId===currUser.id))[0].chats ?
+              messages.filter((msg) => (msg.receiverId === currUser.id)||(msg.senderId===currUser.id))[0].chats.map((msg, index) => 
                   {
                     return(
-                      msg.senderId===user.id?
+                      (msg.senderId===user.id)?
                         <div className="message right" style={{alignSelf:"flex-end",backgroundColor:"#045c84",color:"#fff"}} key={index}>
                         <p>{msg.text}</p>
                         <p>
@@ -191,14 +187,11 @@ const RighMain = ({ user, currUser, setCurrUser,messages,setMessages,username,pa
                     )
                   }
                 )
-                :<></>
-            }
+                :null
+              : null}
           </div>
 
           <div className="textArea">
-            <span className="material-symbols-outlined" onClick={(e)=>handleRefresh(e)}>
-              refresh
-            </span>
             <input
               type="text"
               value={textMessage}

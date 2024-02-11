@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import io from "socket.io-client";
 
-import LoginForm from './pages/LoginForm';
-import Main from './pages/Main';
+import LoginForm from "./pages/LoginForm";
+import Main from "./pages/Main";
 import loginService from "./services/login";
 import chatsService from "./services/chat";
-import './App.css';
+import "./App.css";
 
 const App = () => {
   // const [blogs, setBlogs] = useState([])
-  // const [title, setTitle] = useState('') 
-  // const [author, setAuthor] = useState('') 
-  // const [url, setUrl] = useState('') 
-  const [user, setUser] = useState(null)
-  const [token, setToken] = useState('')  
+  // const [title, setTitle] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [url, setUrl] = useState('')
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [currUser, setCurrUser] = useState(null)
+  const [currUser, setCurrUser] = useState(null);
   const [page, setpage] = useState("login");
 
   const [name, setName] = useState("");
@@ -34,33 +35,33 @@ const App = () => {
             password,
           });
           let chats;
-          await chatsService.fetchAll().then(res=>{
-            chats=res;
+          await chatsService.fetchAll().then((res) => {
+            chats = res;
           });
-          let  msgs = [];
-          user.chats=chats?chats.filter(i=>{
-            if (i.senderId==user.id || i.receiverId==user.id){
-              msgs.push(i);
-              return true;
-            };
-          })
-          :[];
+          let msgs = [];
+          user.chats = chats
+            ? chats.filter((i) => {
+                if (i.senderId == user.id || i.receiverId == user.id) {
+                  msgs.push(i);
+                  return true;
+                }
+              })
+            : [];
           setMessages(msgs);
-          window.localStorage.setItem(
-            "WhatsappUser",
-            JSON.stringify(user)
-          );
+          window.localStorage.setItem("WhatsappUser", JSON.stringify(user));
           setToken(`Bearer ${user.token}`);
           setUser(user);
         } else {
-          if ( window.confirm("User do not exists , would you like to sign up ?")){
-            setpage('signup');
+          if (
+            window.confirm("User do not exists , would you like to sign up ?")
+          ) {
+            setpage("signup");
           }
         }
       } catch (exception) {
         setErrorMessage(exception);
         // alert("Incorrect Password")
-        setPassword('')
+        setPassword("");
       } finally {
         setLoading(false);
       }
@@ -83,17 +84,19 @@ const App = () => {
             username,
             password,
           });
-          setpage('login')
+          setpage("login");
         } catch (exception) {
           setErrorMessage(exception);
         } finally {
           setLoading(false);
         }
-      } else{
-        if (window.confirm("User Already Exists , Would you like to log in ?")){
+      } else {
+        if (
+          window.confirm("User Already Exists , Would you like to log in ?")
+        ) {
           handleLogin(event);
-        } else{
-          setLoading(false)
+        } else {
+          setLoading(false);
         }
       }
     }
@@ -101,28 +104,67 @@ const App = () => {
   const setErrorMessage = (error) => console.log(error);
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('WhatsappUser')
+    const loggedUserJSON = window.localStorage.getItem("WhatsappUser");
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      setToken(`Bearer ${user.token}`)
-      setMessages(user.chats);
-      if (window.localStorage.getItem('CurrWhatsappUser')) {
-        setCurrUser(JSON.parse(window.localStorage.getItem('WhatsappUser')))
-        window.localStorage.removeItem('CurrWhatsappUser')
-      };
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      setToken(`Bearer ${user.token}`);
+      chatsService.fetchAll().then((resp) => {
+        setMessages(resp);
+      });
     }
-  }, [])
+    const socket = io("http://localhost:3001");
+    socket.on("new-message", async() => {
+      const chatsMessgaes =await chatsService.fetchAll()
+      setMessages(chatsMessgaes);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
-    <div className='container' >
+    <div className="container">
       <div className="green"></div>
-      {user ? 
-      <Main   setToken={setToken} setUser={setUser} setpage={setpage} currUser={currUser} username={username} password={password} handleLogin={handleLogin} setCurrUser={setCurrUser} user={user} messages={messages} setMessages={setMessages} /> 
-      : 
-      <LoginForm name={name} setName={setName} repassword={repassword} setRePassword={setRePassword} username={username} setUsername={setUsername} password={password} setPassword={setPassword} loading={loading} handleLogin={handleLogin} page={page} setpage={setpage} handleSignUp={handleSignUp} setToken={setToken} setUser={setUser} token={token} messages={messages} setMessages={setMessages} />}
+      {user ? (
+        <Main
+          setToken={setToken}
+          setUser={setUser}
+          setpage={setpage}
+          currUser={currUser}
+          username={username}
+          password={password}
+          handleLogin={handleLogin}
+          setCurrUser={setCurrUser}
+          user={user}
+          messages={messages}
+          setMessages={setMessages}
+        />
+      ) : (
+        <LoginForm
+          name={name}
+          setName={setName}
+          repassword={repassword}
+          setRePassword={setRePassword}
+          username={username}
+          setUsername={setUsername}
+          password={password}
+          setPassword={setPassword}
+          loading={loading}
+          handleLogin={handleLogin}
+          page={page}
+          setpage={setpage}
+          handleSignUp={handleSignUp}
+          setToken={setToken}
+          setUser={setUser}
+          token={token}
+          messages={messages}
+          setMessages={setMessages}
+        />
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

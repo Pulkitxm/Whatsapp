@@ -1,9 +1,11 @@
 import './chat.css'
 const Chat = ({msg,setCurrUser,CurrUser,Users,user}) => {
-  const prs = Users.find(i=>i.id==msg.receiverId)?Users.find(i=>i.id==msg.receiverId):'';
+  const senserId = msg.senderId, receiverId = msg.receiverId;
+  const id = user.id === senserId ? receiverId : senserId;
+  const prs = Users.find(i=>i.id==id)?Users.find(i=>i.id==id):'';
   return (
     <div className="chatBox" onClick={()=>{
-      setCurrUser(Users.find(i=>i.id==msg.receiverId)?Users.find(i=>i.id==msg.receiverId):null)
+      setCurrUser(Users.find(i=>i.id==id)?Users.find(i=>i.id==id):null)
     }}>
         <h2>{prs.name}</h2>
     </div>

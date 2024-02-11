@@ -2,6 +2,13 @@ const jwt = require('jsonwebtoken');
 const chatsRouter = require('express').Router();
 const Chat = require('../models/chat');
 const User = require('../models/user'); 
+const http = require('http').Server(chatsRouter);
+
+const socketIO = require('socket.io')(http, {
+  cors: {
+      origin: "http://localhost:9000"
+  }
+});
 
 chatsRouter.get('/api/chats', async (request, response) => {
   try {
@@ -48,13 +55,15 @@ chatsRouter.post('/api/chats', async (request, response, next) => {
 
 chatsRouter.put('/api/chats/:id', async (request, response, next) => {
   const { chats } = request.body;
-
   try {
     const updatedChat = await Chat.findByIdAndUpdate(
       request.params.id,
       { chats },
       { new: true }
     );
+    // const updatedChat = await Chat.findById(
+    //   request.params.id,
+    // );
 
     if (!updatedChat) {
       return response.status(404).json({ error: 'Chat not found' });
@@ -69,8 +78,3 @@ chatsRouter.put('/api/chats/:id', async (request, response, next) => {
 
 
 module.exports = chatsRouter;
-[
-  "64fc088b3d27952f5c394352",
-  "64fc3fe65e1b9def1fcdc2d8",
-  "[{\"id\":\"64fc3fe65e1b9def1fcdc2d8\",\"chats\":[{\"text\":\"hello\",\"time\":\"6:37 PM\",\"date\":\"9/23\"}]}]"
-]
